@@ -310,9 +310,11 @@ const SP = {
   heartEmpty: makeSet(SPRITE_DATA.heartEmpty.rows, SPRITE_DATA.heartEmpty.pal),
   trophy: makeSet(SPRITE_DATA.trophy.rows, SPRITE_DATA.trophy.pal)
 };
-const SHIELD_ROWS = SPRITE_DATA.shield.rows;
-const SHIELD_PAL = SPRITE_DATA.shield.pal;
-const SH_W = SHIELD_ROWS[0].length, SH_H = SHIELD_ROWS.length, SH_CELL = 3;
+/* Siperler: G G L A B harfleri (her harf tek bir siper). Hepsi aynı boyutta: 17x18 hücre. */
+const SHIELD_LETTERS = ["G", "G", "L", "A", "B"];
+const SHIELD_GLYPHS = {"G": ["..llllllllllll...","llooooooooooooll.","loooddddddddooodn","loodnnnnnnnnloodn","loodn.......ldddn","loodn........nnnn","loodn............","loodn............","loodn...llllllll.","loodn...loooooodn","loodn...ldddooodn","loodn....nnnloodn","loodn.......loodn","loodn.......loodn","looollllllllooodn","ldooooooooooooddn",".nldddddddddddnnn","...nnnnnnnnnnnn.."],"L": ["llll.............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","loodn............","looollllllllllll.","loooooooooooooodn","lddddddddddddddnn",".nnnnnnnnnnnnnnn."],"A": ["....llllllll.....","...looooooool....","..loooddddoool...","..loodnnnnloodn..",".loodnn....lool..",".loodn.....loodn.",".loodn.....loodn.","loodnn......lool.","looollllllllooodn","loooooooooooooodn","loooddddddddooodn","loodnnnnnnnnloodn","loodn.......loodn","loodn.......loodn","loodn.......loodn","loodn.......loodn","ldddn.......ldddn",".nnnn........nnnn"],"B": ["llllllllllll.....","loooooooooooll...","looodddddddoool..","loodnnnnnnnloodn.","loodn......loodn.","loodn......loodn.","looollllllloddnn.","loooooooooodnnn..","looodddddddoll...","loodnnnnnnnlool..","loodn......loodn.","loodn......loodn.","loodn......loodn.","loodn......loodn.","looolllllllooodn.","loooooooooooddnn.","ldddddddddddnnn..",".nnnnnnnnnnnn...."]};
+const SHIELD_PAL = { o: '#f5792a', l: '#ffa86a', d: '#a84a10', n: '#1b3a7a' };
+const SH_W = SHIELD_GLYPHS.G[0].length, SH_H = SHIELD_GLYPHS.G.length, SH_CELL = 3;
 
 function drawSet(set, x, y, scale, variant) {
   const img = variant ? set[variant] : set.c;
@@ -428,10 +430,11 @@ function aliveEnemies() { return G.enemies.filter(e => e.alive); }
 
 function buildShields() {
   G.shields = [];
-  const n = 4, gap = (W - n * SH_W * SH_CELL) / (n + 1);
+  const n = SHIELD_LETTERS.length, gap = (W - n * SH_W * SH_CELL) / (n + 1);
   for (let i = 0; i < n; i++) {
-    const cells = SHIELD_ROWS.map(r => r.split('').map(ch => (ch === '.' ? 0 : ch)));
-    const c = buildCanvas(SHIELD_ROWS, SHIELD_PAL);
+    const rows = SHIELD_GLYPHS[SHIELD_LETTERS[i]];
+    const cells = rows.map(r => r.split('').map(ch => (ch === '.' ? 0 : ch)));
+    const c = buildCanvas(rows, SHIELD_PAL);
     G.shields.push({ x: Math.round(gap + i * (SH_W * SH_CELL + gap)), y: 446, cells, c, cx: c.getContext('2d') });
   }
 }
@@ -714,7 +717,7 @@ function updateInvaders(dt) {
     let minX = Infinity, maxX = -Infinity;
     for (const e of alive) { minX = Math.min(minX, G.fx + e.col * GX); maxX = Math.max(maxX, G.fx + e.col * GX + e.w); }
     if ((G.dir > 0 && maxX >= W - 10) || (G.dir < 0 && minX <= 10)) {
-      G.dir *= -1; G.fy += 13;
+      G.dir *= -1; G.fy += 11;
       G.fx += G.dir * 3;
     }
     layoutEnemies();
